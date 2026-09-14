@@ -35,13 +35,13 @@ wire_diameter_insulated = 0.879e-3
 f_operating = 10.64e6  # Hz
 
 # Target field
-TARGET_PROFILE = 'uniform'    # 'sqrt','uniform','linear','quadratic','cosine','gaussian','linear_symmetric'
+TARGET_PROFILE = 'uniform'
 PROFILE_KWARGS = {}
 ALLOW_BUCKING = False
-GROOVE_SPACING = 'uniform'    # 'uniform','sqrt','cosine'
+GROOVE_SPACING = 'uniform'
 
 # Field map resolution
-FIELD_MAP_RESOLUTION = 0.003  # meters (3 mm for speed, use 0.001 for publication)
+FIELD_MAP_RESOLUTION = 0.003  # meters (3 mm for speed, use 0.001 for final)
 
 # =============================================================================
 # 2. PRINT CONFIGURATION
@@ -69,13 +69,6 @@ print("╚═══════════════════════�
 def get_groove_positions(coil_length, M, spacing='sqrt'):
     if spacing == 'uniform':
         return np.linspace(-coil_length/2, coil_length/2, M)
-    elif spacing == 'sqrt':
-        t = np.linspace(-1, 1, M)
-        return np.sign(t) * (coil_length / 2) * np.sqrt(np.abs(t))
-    elif spacing == 'cosine':
-        k = np.arange(M)
-        positions = (coil_length / 2) * np.cos(np.pi * k / (M - 1))
-        return np.sort(positions)
     else:
         raise ValueError(f"Unknown spacing: {spacing}")
 
@@ -86,18 +79,11 @@ x_eval = np.linspace(-coil_length / 2 * 0.8, coil_length / 2 * 0.8, N)
 # 4. TARGET FIELD PROFILE
 # =============================================================================
 
-def get_target_field(x_eval, profile='sqrt', **kwargs):
+def get_target_field(x_eval, profile='uniform', **kwargs):
     x_norm = (x_eval - x_eval.min()) / (x_eval.max() - x_eval.min())
     
     profiles = {
-        'sqrt': (np.sqrt(x_norm), "√x (Bloch-Siegert linear gradient)"),
         'uniform': (np.ones_like(x_eval), "Uniform (flat)"),
-        'linear': (x_norm, "Linear gradient"),
-        'quadratic': (x_norm**2, "Quadratic (x²)"),
-        'cosine': (0.5*(1+np.cos(np.pi*(2*x_norm-1))), "Cosine bell"),
-        'gaussian': (np.exp(-0.5*((x_norm-0.5)/kwargs.get('sigma',0.25))**2), 
-                     f"Gaussian (σ={kwargs.get('sigma',0.25)})"),
-        'linear_symmetric': (np.abs(2*x_norm - 1), "Linear symmetric |x|"),
     }
     
     if profile == 'custom':
