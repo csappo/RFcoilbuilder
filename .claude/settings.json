@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($env:PYTHONUTF8=1; & \"C:\\\\Users\\\\saard\\\\miniconda3\\\\Scripts\\\\conda.exe\" run -n coil_workshop --no-capture-output python champion_spec.py 287)"
+    ]
+  }
+}

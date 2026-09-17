@@ -1,0 +1,50 @@
+============================================================
+  RF COIL — FULL PARAMETER SPEC  (design #287)
+============================================================
+
+GEOMETRY
+  Inner diameter (ID)     : 57.0 mm   (inner radius 28.50 mm)
+  Outer diameter (OD)     : 61.5 mm   (limit 64.0 mm)
+  Coil length             : 110.0 mm
+  Former wall thickness   : 0.50 mm
+  Groove positions (M)    : 56   (pitch 2.00 mm)
+  Winding symmetry        : mirror-symmetric
+
+WINDING
+  Wire                    : AWG 20  (bare 0.812 mm, insulated 0.879 mm)
+  Max radial layers       : 2
+  Total turns             : 16  (forward 16, bucking 0)
+
+ELECTRICAL @ 10.64 MHz
+  Inductance L            : 8.67 uH
+  Tuning capacitor C      : 25.8 pF  (parallel)
+  Reactance X_L           : 579.9 ohm
+  Q factor                : 593
+  AC resistance           : 978.2 mohm
+  Wire length             : 2.97 m
+
+PERFORMANCE
+  3D B1 homogeneity       : 0.42 %  over +-20 mm axial x Ø37 mm
+  On-axis flat<5% length  : 63 mm
+  On-axis flat<1% length  : 49 mm
+
+WINDING TABLE  (only grooves that carry turns)
+  groove#  position(mm)  turns  layers
+        9         -39.0     +1       1
+       10         -37.0     +1       1
+       11         -35.0     +2       2
+       16         -25.0     +1       1
+       20         -17.0     +1       1
+       23         -11.0     +1       1
+       27          -3.0     +1       1
+       30          +3.0     +1       1
+       34         +11.0     +1       1
+       37         +17.0     +1       1
+       41         +25.0     +1       1
+       46         +35.0     +2       2
+       47         +37.0     +1       1
+       48         +39.0     +1       1
+
+FULL WINDING VECTOR (turns per groove, g1..gM):
+  0 0 0 0 0 0 0 0 1 1 2 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 1 0 0 1 0 0 0 1 0 0 1 0 0 0 1 0 0 0 0 2 1 1 0 0 0 0 0 0 0 0
+============================================================
