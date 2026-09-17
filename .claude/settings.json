@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "PowerShell($env:PYTHONUTF8=1; & \"C:\\\\Users\\\\saard\\\\miniconda3\\\\Scripts\\\\conda.exe\" run -n coil_workshop --no-capture-output python champion_spec.py 287)"
+      "PowerShell($env:PYTHONUTF8=1; & \"C:\\\\Users\\\\saard\\\\miniconda3\\\\Scripts\\\\conda.exe\" run -n coil_workshop --no-capture-output python champion_spec.py 287)",
+      "PowerShell($env:PYTHONUTF8=1; $env:MPLBACKEND='Agg'; & \"C:\\\\Users\\\\saard\\\\miniconda3\\\\Scripts\\\\conda.exe\" run -n coil_workshop --no-capture-output python -u coil_optimisation_v1.3_DIYMRI.py 2>&1 | Select-String -Pattern 'CHAMPION|Max relative|TOTAL INDUCTANCE|Tuning|Q factor|Wire length|Files saved|Traceback'; Write-Output \"EXITCODE=$LASTEXITCODE\")"
     ]
   }
 }

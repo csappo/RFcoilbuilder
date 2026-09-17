@@ -18,13 +18,13 @@ mpl.rcParams['savefig.dpi'] = 150
 # 1. COIL PARAMETERS — CHANGE THESE
 # =============================================================================
 
-coil_length = 0.18         # meters
-coil_radius = 0.03         # meters (inner radius where windings start)
-M = 30                     # number of grooves
+coil_length = 0.110        # meters  (CHAMPION #287)
+coil_radius = 0.0285       # meters (inner radius) -> ID 57 mm
+M = 56                     # number of grooves
 N = 60                     # number of field evaluation points
 n_max = 2                  # max forward windings per groove
 n_min = -2                 # max bucking windings per groove
-former_thickness = 0.005   # 5 mm
+former_thickness = 0.0005  # 0.5 mm
 
 # AWG 20 wire
 wire_diameter_bare = 0.812e-3
@@ -73,7 +73,10 @@ def get_groove_positions(coil_length, M, spacing='sqrt'):
         raise ValueError(f"Unknown spacing: {spacing}")
 
 groove_positions = get_groove_positions(coil_length, M, GROOVE_SPACING)
-x_eval = np.linspace(-coil_length / 2 * 0.8, coil_length / 2 * 0.8, N)
+# Evaluate over the champion design FoV (+-20 mm), not the full coil, so the
+# error panel reflects the usable homogeneous region.
+FOV_HALF = 0.020
+x_eval = np.linspace(-FOV_HALF, FOV_HALF, N)
 
 # =============================================================================
 # 4. TARGET FIELD PROFILE
@@ -189,11 +192,23 @@ def optimize_coil_windings(B_matrix, B_target, n_max=4, n_min=-4, allow_bucking=
     return n_windings, max_rel_error
 
 print("\n" + "="*50)
-print("RUNNING OPTIMIZATION...")
+print("USING CHAMPION DESIGN #287 (3D-optimized winding)")
 print("="*50)
-n_windings, max_error = optimize_coil_windings(
-    B_matrix_valid, B_target_valid, n_max=n_max, n_min=n_min, allow_bucking=ALLOW_BUCKING
-)
+# Fixed winding pattern from the 3D bore-volume optimizer (coil_core.py).
+# Bypasses the on-axis ILP so these figures show the ACTUAL champion coil:
+# 16 turns, mirror-symmetric, max 2 layers. 0.42% 3D B1 homogeneity.
+CHAMPION_WINDINGS = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 1,
+                     0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+                     1, 0, 0, 0, 0, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+n_windings = np.array(CHAMPION_WINDINGS)
+assert len(n_windings) == M, f"winding length {len(n_windings)} != M {M}"
+# Show the display target as the mean on-axis field (uniform), so the error
+# panel reports true homogeneity (deviation from mean) for this fixed winding.
+_B_axis = B_matrix @ n_windings
+_mean = _B_axis[valid_mask].mean()
+B_target_scaled = np.full_like(x_eval, _mean)
+valid_mask = B_target_scaled > 1e-12
+max_error = float(np.max(np.abs((_B_axis - _mean) / _mean)))
 
 n_forward = np.maximum(n_windings, 0)
 n_bucking = np.minimum(n_windings, 0)
