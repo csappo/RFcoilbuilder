@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.patches import Rectangle
 
+import csv
+
 # Force matplotlib sizing in VS Code
 import matplotlib as mpl
 mpl.rcParams['figure.dpi'] = 100
@@ -20,10 +22,10 @@ mpl.rcParams['savefig.dpi'] = 150
 
 coil_length = 0.18         # meters
 coil_radius = 0.03         # meters (inner radius where windings start)
-M = 30                     # number of grooves
+M = 45                     # number of grooves
 N = 60                     # number of field evaluation points
-n_max = 2                  # max forward windings per groove
-n_min = -2                 # max bucking windings per groove
+n_max = 1                  # max forward windings per groove
+n_min = -1                 # max bucking windings per groove
 former_thickness = 0.005   # 5 mm
 
 # AWG 20 wire
@@ -37,7 +39,7 @@ f_operating = 10.64e6  # Hz
 # Target field
 TARGET_PROFILE = 'uniform'
 PROFILE_KWARGS = {}
-ALLOW_BUCKING = False
+ALLOW_BUCKING = True
 GROOVE_SPACING = 'uniform'
 
 # Field map resolution
@@ -73,7 +75,8 @@ def get_groove_positions(coil_length, M, spacing='sqrt'):
         raise ValueError(f"Unknown spacing: {spacing}")
 
 groove_positions = get_groove_positions(coil_length, M, GROOVE_SPACING)
-x_eval = np.linspace(-coil_length / 2 * 0.8, coil_length / 2 * 0.8, N)
+eval_fraction = 0.8
+x_eval = np.linspace(-coil_length / 2 * eval_fraction, coil_length / 2 * eval_fraction, N)
 
 # =============================================================================
 # 4. TARGET FIELD PROFILE
@@ -692,11 +695,27 @@ print("╚═══════════════════════�
 # Winding table
 print("\n  WINDING TABLE:")
 print("  ┌────────┬───────────────┬──────────┬─────────┐")
-print("  │ Groove │ Position (cm) │ Windings │  Type   │")
+print("  │ Groove │ Position (mm) │ Windings │  Type   │")
 print("  ├────────┼───────────────┼──────────┼─────────┤")
 for m in range(M):
     if n_windings[m] != 0:
         wtype = "FWD" if n_windings[m] > 0 else "BUCK"
-        print(f"  │  {m+1:3d}   │   {groove_positions[m]*100:+7.2f}   │   {n_windings[m]:+2d}   │  {wtype:4s}   │")
+        print(f"  │  {m+1:3d}   │   {groove_positions[m]*1000:+7.2f}   │   {n_windings[m]:+2d}   │  {wtype:4s}   │")
 print("  └────────┴───────────────┴──────────┴─────────┘")
 print(f"\n  Files saved: 01-06_*.png")
+
+csv_path = "winding_table.csv"
+with open(csv_path, "w", newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(["Groove", "Position (mm)", "Windings", "Type"])
+    for m in range(M):
+        if n_windings[m] != 0:
+            wtype = "FWD" if n_windings[m] > 0 else "BUCK"
+            writer.writerow([
+                m + 1,
+                f"{groove_positions[m] * 1000:.2f}",
+                n_windings[m],
+                wtype,
+            ])
+
+print(f"\n  Files saved: 01-06_*.png, {csv_path}")
