@@ -16,4 +16,6 @@ The above code with generate a csv file, run the following to generate STL file
 
 ```python generate_former_stl.py```
 
+update path to ```default_csv``` in the file
+
 
