@@ -11,7 +11,7 @@ This will generate png images for B1 field and winding pattern. You may want to 
 <img src="https://github.com/csappo/RFcoilbuilder/blob/main/03_coil_developed_view.png">
 
 
-## STl creation for 3D printing
+## STL creation for 3D printing
 The above code with generate a csv file, run the following to generate STL file
 
 ```python generate_former_stl.py```
